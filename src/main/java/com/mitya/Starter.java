@@ -5,7 +5,7 @@ public class Starter {
 
         System.out.println("Программа началась.");
         UnPacker up = new UnPacker();
-        up.returnString();
+        up.unpackStringFromFile();
         System.out.println("Программа закончена.");
     }
 }

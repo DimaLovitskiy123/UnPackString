@@ -14,11 +14,41 @@ public class UnPacker {
     private static final String REGEX_FOR_MULTIPLY = "\\[\\w+\\]";
     private static final String BASIC_REGEX = "\\d+\\[\\w+\\]";
 
-    public String getString() {
+    public String unpackStringFromFile() {
+        String in = readFromFile();
+        try {
+            Validator.allValidation(in);
+        } catch (DigitBracketException e) {
+            e.printStackTrace();
+        } catch (DuoBracketException e) {
+            e.printStackTrace();
+        } catch (LatinException e) {
+            e.printStackTrace();
+        } catch (SpaceException e) {
+            e.printStackTrace();
+        }
+
+        Pattern pattern = Pattern.compile(BASIC_REGEX);
+
+        while (true) {
+            Matcher matcher = pattern.matcher(in);
+            if (!matcher.find()) {
+                break;
+            }
+            String s1 = multiply(matcher.group());
+            in = matcher.replaceFirst(s1);
+        }
+        writeIntoFile(in);
+        return in;
+    }
+
+
+
+    private String readFromFile() {
         StringBuilder sb = new StringBuilder();
 
         try (FileInputStream is = new FileInputStream
-                ("C:/Users/ДИМА/IdeaProjects/UnPackString/src/main/resources/input.txt");
+                ("C:/Users/Dima/IdeaProjects/UnPackString/src/main/resources/input.txt");
              InputStreamReader reader = new InputStreamReader(is)) {
 
             while (true) {
@@ -36,43 +66,18 @@ public class UnPacker {
         return sb.toString().toLowerCase();
     }
 
-    public String multiply(String sub) {
+    private String multiply(String sub) {
         int ratio = Integer.parseInt(sub.replaceAll(REGEX_FOR_MULTIPLY, ""));
         return sub.substring(sub.indexOf('[') + 1, sub.indexOf(']')).repeat(ratio);
     }
 
-    public String unpackString() throws DigitBracketException, LatinException, SpaceException, DuoBracketException {
-        String in = getString();
-        Validator.allValidation(in);
 
-        Pattern pattern = Pattern.compile(BASIC_REGEX);
-
-        while (true) {
-            Matcher matcher = pattern.matcher(in);
-            if (!matcher.find()) {
-                break;
-            }
-            String s1 = multiply(matcher.group());
-            in = matcher.replaceFirst(s1);
-        }
-        return in;
-    }
-
-
-    public void returnString() {
+    private void writeIntoFile(String unpacked) {
         try (FileOutputStream os = new FileOutputStream("src\\main\\resources\\output.txt");
              OutputStreamWriter writer = new OutputStreamWriter(os)) {
-            writer.write(unpackString());
+            writer.write(unpacked);
         } catch (IOException e) {
             throw new RuntimeException();
-        } catch (SpaceException e) {
-            e.printStackTrace();
-        } catch (DigitBracketException e) {
-            e.printStackTrace();
-        } catch (DuoBracketException e) {
-            e.printStackTrace();
-        } catch (LatinException e) {
-            e.printStackTrace();
         }
     }
 }
